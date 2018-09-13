@@ -641,6 +641,27 @@ choose_mastodon_install_type() {
 
 }
 
+choose_mastodon_db_container() {
+
+	describe_setting() {
+
+		dna-echo -m "Now specify the Mastodon db container name."
+
+		if docker ps -a &> /dev/null
+		then
+			dna-echo -m "Here are the currently running docker containsers on this machine:"
+			docker ps -a
+		else
+			dna-echo -e "The docker command doesn't appear to be installed on this system."
+			dna-echo -m "Not displaying currently running containers for ease of name retrieval."
+		fi
+
+	}
+
+	dna-set_option -o "mastodon_db_container" -p "mastodon" -d "y" -v "n"
+
+}
+
 choose_mastodon_install_dir() {
 
 	describe_setting() {

@@ -717,6 +717,11 @@ perform_installation() {
 
 	choose_mastodon_install_type
 
+	if [ "${mastodon_install_type}" = "docker" ]
+	then
+		choose_mastodon_db_container
+	fi
+
 	choose_mastodon_install_dir
 
 	############################################################################

@@ -128,7 +128,7 @@ backup_locally_loop() {
 		        | head -n -2 | tail -n +3 > ${LMTMP}
 
 		    IFS="
-		"
+"
 		    for line in $(cat ${LMTMP}); do
 		        id=$(echo $line | cut -d "|" -f 1 | tr -d " ")
 		        fn=$(echo $line | cut -d "|" -f 2 | tr -d " " | sed -e "s,\r,,")
@@ -143,7 +143,7 @@ backup_locally_loop() {
 
 		echo "* Archiving local media..."
 		cd "${MASTODON_DIR}"
-		tar -cv --ignore-failed-read -f "${DESTDIR}/local-media.tar" $(list_local_media) 2>/dev/null
+		tar -cv --ignore-failed-read -f "${DESTDIR}/local-media.tar" $(list_local_media) 2>/dev/null || true
 
 		echo "* Dumping the database..."
 		docker exec -t "${mastodon_db_container}" pg_dumpall -c -U postgres | xz >"${DESTDIR}/db.sql.xz"
@@ -651,6 +651,7 @@ choose_mastodon_db_container() {
 		then
 			dna-echo -m "Here are the currently running docker containsers on this machine:"
 			docker ps -a
+			echo
 		else
 			dna-echo -e "The docker command doesn't appear to be installed on this system."
 			dna-echo -m "Not displaying currently running containers for ease of name retrieval."
@@ -696,7 +697,6 @@ perform_installation() {
 	################### Add your install-time functions here ###################
 	############################################################################
 
-	dna-install_duplicity
 	dna-install_mail_notifications
 
 	############################################################################

@@ -148,6 +148,8 @@ backup_locally_loop() {
 		echo "* Dumping the database..."
 		docker exec -t "${mastodon_db_container}" pg_dumpall -c -U postgres | xz >"${DESTDIR}/db.sql.xz"
 
+		cd "${mastodon_install_dir}"
+
 		mv ./backup "${tmp_backup_dir}/data/"
 
 	else

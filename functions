@@ -732,7 +732,7 @@ synthia-perform_installation() {
 
 	############################################################################
 
-	dna-add_cron_job -n "${short_name}-backup" -t "8 4 * * * " -c "bash /root/openspace42/${short_name}/tools/${short_name}-backup"
+	dna-add_cron_job -n "${proj_name}-backup" -t "8 4 * * * " -c "bash /root/openspace42/${proj_name}/tools/${proj_name}-backup"
 
 	############################################################################
 	############################################################################

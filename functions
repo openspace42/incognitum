@@ -186,6 +186,70 @@ synthia-source_dna() {
 ######################## Insert project functions here #########################
 ################################################################################
 
+backup_locally_loop() {
+
+	## Backup important data from a Mastodon instance
+	## Copyright (C) 2017 Gergely Nagy
+	##
+	## Released under the WTFPL, see LICENSE.
+
+	### Backup configuration
+
+	cp -r "${conf_dir}" "${tmp_backup_dir}/conf/"
+
+	if [ "${mastodon_install_type}" = "docker" ]
+	then
+
+		cd "${mastodon_install_dir}"
+
+		BACKUPDIR="${BACKUPDIR:-$(pwd)/backup}"
+		MASTODON_DIR="${MASTODON_DIR:-./public}"
+		DESTDIR="${BACKUPDIR}"
+		install -d "${DESTDIR}"
+
+		list_local_media() {
+		    LMTMP=$(tempfile)
+		    docker exec -t "${mastodon_db_container}" psql -U postgres -q -P pager=off -c \
+		           'select ma.id, ma.file_file_name from media_attachments ma, accounts a where a.id = ma.account_id and a.domain is NULL;' \
+		        | head -n -2 | tail -n +3 > ${LMTMP}
+
+		    IFS="
+"
+		    for line in $(cat ${LMTMP}); do
+		        id=$(echo $line | cut -d "|" -f 1 | tr -d " ")
+		        fn=$(echo $line | cut -d "|" -f 2 | tr -d " " | sed -e "s,\r,,")
+		        url="system/media_attachments/files/$(printf "%09d" $id | sed -e 's,\(...\),\1/,g')original/$fn"
+		        echo $url
+		    done
+		    rm -f "${LMTMP}"
+		}
+
+		echo "* Copying configuration..."
+		cp ${MASTODON_DIR}/../.env.production ${MASTODON_DIR}/../docker-compose.yml ${DESTDIR}/
+
+		echo "* Archiving local media..."
+		cd "${MASTODON_DIR}"
+		tar -cv --ignore-failed-read -f "${DESTDIR}/local-media.tar" $(list_local_media) 2>/dev/null || true
+
+		echo "* Dumping the database..."
+		docker exec -t "${mastodon_db_container}" pg_dumpall -c -U postgres | xz >"${DESTDIR}/db.sql.xz"
+
+		cd "${mastodon_install_dir}"
+
+		mv ./backup "${tmp_backup_dir}/data/"
+
+	else
+
+		dna-echo -e "Non-docker functionality isn't implemented yet."
+		dna-echo -m "If you'd like, please open a request on Github. Thanks!"
+		dna-exit
+
+	fi
+
+}
+
+################################################################################
+
 restore_loop() {
 
 	dna-echo -e "Restore functionality isn't implemented yet."
